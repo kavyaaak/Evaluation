@@ -29,8 +29,7 @@ export default SplashScreen;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 10,
+        flex:1
     },
     imageStyle: {
         flex: 1

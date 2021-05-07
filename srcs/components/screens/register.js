@@ -4,7 +4,9 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    StyleSheet, Image, Button
+    StyleSheet,
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Users from '../constants/user';
@@ -22,7 +24,8 @@ const RegisterScreen = (props) => {
     const [validConfirmPassword, setValidConfirmPassword] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [user,setUser]=useState("");
-   
+    const [textEmail,setTextEmail]=useState("");
+    const [loading, setLoading] = useState(false);
   
     useEffect(() => {
         AsyncStorage.getItem('accCreate').then(
@@ -43,7 +46,20 @@ const RegisterScreen = (props) => {
         );
     }, []);
 
+    useEffect(() => {
+        const backAction = () => {
+            props.navigation.navigate("Login")
+            return true;
+        };
 
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+         return () => backHandler.remove();
+    }, []);
+    
+    
     function onChangeName(text) {
         setValidName(false)
         setUserName(text)
@@ -52,10 +68,19 @@ const RegisterScreen = (props) => {
     function onChangeEmail(text) {
         const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (re.test(String(email).toLowerCase())) {
-            setValidEmail(false)
-            setEmail(text)
+            const foundUser = user.filter(item => {
+                return text == item.email
+            });
+            if(foundUser.length >0){
+                    setValidEmail(true)
+                    setTextEmail("Email already found")
+            }else{
+                    setValidEmail(false)
+                    setEmail(text)
+           }
         } else {
             setValidEmail(true)
+            setTextEmail("Enter a valid email")
         }
         setEmail(text)
     }  
@@ -66,17 +91,16 @@ const RegisterScreen = (props) => {
     }
 
     function onChangeConfirmPassword(text){
-          if( text== password){
-           setValidConfirmPassword(false)
-           setConfirmPassword(text)
-           console.log('ok')
-          }else {
+        if( text== password){
+            setValidConfirmPassword(false)
+            setConfirmPassword(text)
+            console.log('ok')
+        }else {
             setValidConfirmPassword(true)
        }
        setConfirmPassword(text)
-      }
+       }
 
-     
     const gotologin = () => {
         if (!userName && !email && !password && !confirmPassword) {
             setValidName(true)
@@ -107,8 +131,16 @@ const RegisterScreen = (props) => {
             setValidPassword(true)
             setValidEmail(false)
             setValidName(false)
-        }
-        else {
+        }else if((password.length < 5) && (userName.length <= 4)){
+            setValidPassword(true)
+            setValidName(true)
+        }else if((userName.length <= 4) && (!password.length < 5)){
+            setValidName(true)
+            setValidPassword(false)
+        } else if((userName.length <= 4) && (!password.length < 5)){
+            setValidName(false)
+            setValidPassword(true)
+        }else {
             if(validPassword == validConfirmPassword){
             var dataToSend = {
                 username: userName,
@@ -119,7 +151,11 @@ const RegisterScreen = (props) => {
             AsyncStorage.setItem('userdata',JSON.stringify(userList));
             AsyncStorage.setItem('accCreate','true')
             console.log(userList)
-            props.navigation.navigate("Login")
+            setLoading(true)
+            setTimeout(() => {
+                setLoading(false);
+                props.navigation.navigate("Login")
+              }, 3000);
         }
         }
     }
@@ -143,7 +179,7 @@ const RegisterScreen = (props) => {
                     />
                     {
                     validName ? 
-                    (<Text style={styles. validationText}>Enter a name</Text>) 
+                    (<Text style={styles. validationText}>Enter a name with atleast 4 characters</Text>) 
                     : 
                     null
                     }
@@ -156,7 +192,7 @@ const RegisterScreen = (props) => {
                     />
                     {
                     validEmail ? 
-                    (<Text style={styles. validationText}>Enter a valid email</Text>) 
+                    (<Text style={styles. validationText}>{textEmail}</Text>) 
                     : 
                     null
                     }
@@ -172,7 +208,7 @@ const RegisterScreen = (props) => {
                     />
                     {
                     validPassword ? 
-                    (<Text style={styles. validationText}>Enter a password</Text>) 
+                    (<Text style={styles. validationText}>Enter a password with atleast 5 characters</Text>) 
                     : 
                     null
                     }
@@ -205,14 +241,27 @@ const RegisterScreen = (props) => {
                     }
                 </View>
                 <View>
-                    <TouchableOpacity style={styles.registerButton}
+                {loading ? (
+          <ActivityIndicator
+            visible={loading}
+            color='#1664b8'
+            size='large'
+            textContent={'Loading...'}
+            textStyle={styles.spinnerTextStyle}
+          />
+        ) : null}
+                   
+                </View>
+                <View>
+                <TouchableOpacity style={styles.registerButton}
                         onPress={gotologin}>
                         <Text style={styles.registerText}>SIGN UP</Text>
                     </TouchableOpacity>
+
                 </View>
                 <View>
                     <TouchableOpacity onPress={gotologinn}>
-                        <Text style={styles.forgetButton}>if already an account?</Text>
+                        <Text style={styles.forgetButton}>IF ALREADY AN ACCOUNT ?</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -284,8 +333,8 @@ const styles = StyleSheet.create({
         width: "40%",
         height: 50,
         justifyContent: "center",
-        marginTop: 60,
-        marginBottom: 20,
+        marginTop: 40,
+        marginBottom: 35,
         backgroundColor: "#26ab92",
         alignSelf: "center",
         borderRadius: 8
@@ -304,4 +353,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         color: '#fff'
     },
+    spinnerTextStyle: {
+        color: '#FFF',
+      },
 })

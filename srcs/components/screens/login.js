@@ -5,7 +5,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    StyleSheet, Image, Button, BackHandler, Alert
+    StyleSheet,BackHandler, Alert, ActivityIndicator
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { connect } from 'react-redux';
@@ -13,17 +13,19 @@ import { storeUserData } from '../../redux/action/userAction';
 import { Icon } from 'react-native-elements';
 import Users from '../constants/user';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Value } from 'react-native-reanimated';
+
 const Login = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [signIn, setSignIn] = useState(false);
-    //console.log("propsssSSSS", props.getUserName)
+   
 
     const [validEmail, setValidEmail] = useState(false);
     const [validPassword, setValidPassword] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [userData, setUserData] = useState("");
+    const [loading, setLoading] = useState(false);
+
     const isFocused = useIsFocused()
     useEffect(() => {
         const backAction = () => {
@@ -87,10 +89,12 @@ const Login = (props) => {
                 const userDetails = foundUser.filter(item => {
                     props.storeUserData(item.username)
                 })
-                //console.log('###',userDetails)
-                // props.storeUserData(userDetails)
                 setSignIn(false)
-                props.navigation.navigate("Home")
+                setLoading(true)
+                setTimeout(() => {
+                    setLoading(false);
+                    props.navigation.navigate("Home")
+                }, 3000);
             } else {
                 setSignIn(true)
             }
@@ -116,7 +120,7 @@ const Login = (props) => {
         setValidPassword(false)
         setPassword(text)
     }
-
+   
     return (
         <View style={styles.mainView}>
             <View style={styles.header}>
@@ -169,24 +173,37 @@ const Login = (props) => {
                 </View>
                 <View>
                     <TouchableOpacity>
-                        <Text style={styles.forgetButton}>Forget Your Password?</Text>
+                        <Text style={styles.forgetButton}>Forget Your Password ?</Text>
                     </TouchableOpacity>
                 </View>
                 <View>
-                    <TouchableOpacity style={styles.loginButton}
-                        onPress={gotohome}>
-                        <Text style={styles.loginText}>SIGN IN</Text>
-                    </TouchableOpacity>
-                    {
-                        signIn ?
-                            (<Text style={styles.validationSignin}>invalid login </Text>)
-                            :
-                            null
+                    {loading ? (
+                        <ActivityIndicator
+                            visible={loading}
+                            color='#1664b8'
+                            size='large'
+                            textContent={'Loading...'}
+                            textStyle={styles.spinnerTextStyle}
+                        />
+                    ) :
+                        null
                     }
+                    <View>
+                        <TouchableOpacity style={styles.loginButton}
+                            onPress={gotohome}>
+                            <Text style={styles.loginText}>SIGN IN</Text>
+                        </TouchableOpacity>
+                        {
+                            signIn ?
+                                (<Text style={styles.validationSignin}>Invalid login </Text>)
+                                :
+                                null
+                        }
+                    </View>
                 </View>
                 <View>
                     <TouchableOpacity onPress={gotoregister}>
-                        <Text style={styles.forgetButton}>if new user?create an account</Text>
+                        <Text style={styles.forgetButton}>IF NEW USER ? CREATE AN ACCOUNT</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -237,9 +254,9 @@ const styles = StyleSheet.create({
         color: "#ff121a",
         paddingLeft: 40
     },
-    validationSignin:{
+    validationSignin: {
         color: "#ff121a",
-        textAlign:'center'
+        textAlign: 'center'
     },
     inputView:
     {
@@ -282,7 +299,7 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: "center",
         marginTop: 30,
-        marginBottom:10,
+        marginBottom: 10,
         backgroundColor: "#26ab92",
         alignSelf: "center",
         borderRadius: 8
