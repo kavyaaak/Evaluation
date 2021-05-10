@@ -4,12 +4,12 @@ import * as React from 'react';
 import { Button, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator,CardStyleInterpolators } from '@react-navigation/stack';
-import SplashScreen from './srcs/components/screens/splash';
-import Login from './srcs/components/screens/login';
-import RegisterScreen from './srcs/components/screens/register';
-import HomeScreen from './srcs/components/screens/home';
+import SplashScreen from './src/components/screens/splash';
+import Login from './src/components/screens/login';
+import RegisterScreen from './src/components/screens/register';
+import HomeScreen from './src/components/screens/home';
 import { Provider } from 'react-redux';
-import configStore from './srcs/redux/stores';
+import configStore from './src/redux/stores';
 import 'react-native-gesture-handler';
 
 const Stack = createStackNavigator();
