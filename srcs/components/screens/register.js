@@ -26,6 +26,7 @@ const RegisterScreen = (props) => {
     const [user,setUser]=useState("");
     const [textEmail,setTextEmail]=useState("");
     const [loading, setLoading] = useState(false);
+    const [signUp, setSignUp] = useState("");
   
     useEffect(() => {
         AsyncStorage.getItem('accCreate').then(
@@ -91,14 +92,13 @@ const RegisterScreen = (props) => {
     }
 
     function onChangeConfirmPassword(text){
-        if( text== password){
+        if( text == password){
             setValidConfirmPassword(false)
             setConfirmPassword(text)
             console.log('ok')
         }else {
             setValidConfirmPassword(true)
        }
-       setConfirmPassword(text)
        }
 
     const gotologin = () => {
@@ -107,41 +107,52 @@ const RegisterScreen = (props) => {
             setValidEmail(true)
             setValidPassword(true)
             setValidConfirmPassword(true)
-        } else if (!email && !password && username) {
+        } else if (!email && !password && username && !confirmPassword) {
             setValidEmail(true)
             setValidName(false)
             setValidPassword(true)
-        } else if (!password && email && !userName) {
+            setValidConfirmPassword(true)
+        } else if (!password && email && !userName && !confirmPassword) {
             setValidPassword(true)
             setValidEmail(false)
             setValidName(true)
-        }else if (password && !email && !userName) {
+            setValidConfirmPassword(true)
+        }else if (password && !email && !userName && !confirmPassword) {
             setValidPassword(false)
             setValidEmail(true)
             setValidName(true)
-        }else if (password && email && !userName) {
+            setValidConfirmPassword(true)
+        }else if (password && email && !userName && !confirmPassword ) {
             setValidPassword(false)
             setValidEmail(false)
             setValidName(true)
-        }else if (password && !email && userName) {
+            setValidConfirmPassword(true)
+        }else if (password && !email && userName && !confirmPassword) {
             setValidPassword(false)
             setValidEmail(true)
             setValidName(false)
-        }else if (!password && email && userName) {
+            setValidConfirmPassword(true)
+        }else if (!password && email && userName && !confirmPassword) {
             setValidPassword(true)
             setValidEmail(false)
             setValidName(false)
-        }else if((password.length < 5) && (userName.length <= 4)){
+            setValidConfirmPassword(true)
+        }else if (password && email && userName && !confirmPassword) {
+                setValidPassword(false)
+                setValidEmail(false)
+                setValidName(false)
+                setValidConfirmPassword(true)
+        }else if((password.length < 5) && (userName.length <= 3)){
             setValidPassword(true)
             setValidName(true)
-        }else if((userName.length <= 4) && (!password.length < 5)){
+        }else if((userName.length <= 3) && (!password.length < 5)){
             setValidName(true)
             setValidPassword(false)
-        } else if((userName.length <= 4) && (!password.length < 5)){
+        } else if((!userName.length <= 3) && (password.length < 5)){
             setValidName(false)
             setValidPassword(true)
         }else {
-            if(validPassword == validConfirmPassword){
+            if(password == confirmPassword && !validEmail && !validConfirmPassword && !validName && !validPassword){
             var dataToSend = {
                 username: userName,
                 email:email,
@@ -151,11 +162,15 @@ const RegisterScreen = (props) => {
             AsyncStorage.setItem('userdata',JSON.stringify(userList));
             AsyncStorage.setItem('accCreate','true')
             console.log(userList)
+            setSignUp(true)
             setLoading(true)
             setTimeout(() => {
                 setLoading(false);
                 props.navigation.navigate("Login")
               }, 3000);
+        }
+        else{
+            setSignUp(false)
         }
         }
     }
@@ -257,7 +272,12 @@ const RegisterScreen = (props) => {
                         onPress={gotologin}>
                         <Text style={styles.registerText}>SIGN UP</Text>
                     </TouchableOpacity>
-
+                    {
+                            signUp ?
+                                (<Text style={styles.validationSignUp}>Registration Success </Text>)
+                                :
+                                null
+                        }
                 </View>
                 <View>
                     <TouchableOpacity onPress={gotologinn}>
@@ -334,7 +354,7 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: "center",
         marginTop: 40,
-        marginBottom: 35,
+        marginBottom:5,
         backgroundColor: "#26ab92",
         alignSelf: "center",
         borderRadius: 8
@@ -349,11 +369,16 @@ const styles = StyleSheet.create({
     forgetButton:
     {
         textAlign: "center",
-        marginTop: 20,
+        marginTop: 40,
         marginBottom: 10,
         color: '#fff'
     },
     spinnerTextStyle: {
         color: '#FFF',
-      },
+    },
+    validationSignUp: {
+        color: "#42c202",
+        textAlign: 'center',
+        marginBottom:20
+    },
 })
