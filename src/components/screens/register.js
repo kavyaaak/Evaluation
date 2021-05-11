@@ -99,6 +99,7 @@ const RegisterScreen = (props) => {
         }else {
             setValidConfirmPassword(true)
        }
+       setConfirmPassword(text)
        }
 
     const gotologin = () => {
